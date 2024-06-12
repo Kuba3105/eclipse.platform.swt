@@ -1126,7 +1126,7 @@ LRESULT wmDrawChild (long wParam, long lParam) {
 	if (image != null) {
 		GCData data = new GCData();
 		data.device = display;
-		GC gc = GC.win32_new (struct.hDC, data);
+		GC gc = createNewGC(struct.hDC, data);
 		/*
 		* Bug in Windows.  When a bitmap is included in the
 		* menu bar, the HDC seems to already include the left
@@ -1135,7 +1135,8 @@ LRESULT wmDrawChild (long wParam, long lParam) {
 		*/
 		int x = (parent.style & SWT.BAR) != 0 ? MARGIN_WIDTH * 2 : struct.left;
 		Image image = getEnabled () ? this.image : new Image (display, this.image, SWT.IMAGE_DISABLE);
-		gc.drawImage (image, DPIUtil.autoScaleDown(x), DPIUtil.autoScaleDown(struct.top + MARGIN_HEIGHT));
+		int zoom = getZoom();
+		gc.drawImage (image, DPIUtil.scaleDown(x, zoom), DPIUtil.scaleDown(struct.top + MARGIN_HEIGHT, zoom));
 		if (this.image != image) image.dispose ();
 		gc.dispose ();
 	}
