@@ -392,7 +392,7 @@ public void pack () {
 		if (hwndHeader != 0) {
 			margin = (int)OS.SendMessage (hwndHeader, OS.HDM_GETBITMAPMARGIN, 0, 0);
 		} else {
-			margin = OS.GetSystemMetrics (OS.SM_CXEDGE) * 3;
+			margin = getSystemMetrics (OS.SM_CXEDGE) * 3;
 		}
 		headerWidth += margin * 2;
 	}
@@ -536,7 +536,7 @@ void setImage (Image image, boolean sort, boolean right) {
 			hdItem.mask &= ~OS.HDI_IMAGE;
 			hdItem.fmt &= ~OS.HDF_IMAGE;
 			hdItem.fmt |= OS.HDF_BITMAP;
-			hdItem.hbm = image.handle;
+			hdItem.hbm = Image.win32_getHandle(image, getZoom());
 		} else {
 			hdItem.mask &= ~OS.HDI_BITMAP;
 			hdItem.fmt &= ~OS.HDF_BITMAP;
@@ -767,7 +767,7 @@ private static void handleDPIChange(Widget widget, int newZoom, float scalingFac
 	treeColumn.setWidth(Math.round(treeColumn.getWidth() * scalingFactor));
 	Image image = treeColumn.image;
 	if (image != null) {
-		treeColumn.setImage (Image.win32_new(image, newZoom));
+		treeColumn.setImage (image);
 	}
 }
 }

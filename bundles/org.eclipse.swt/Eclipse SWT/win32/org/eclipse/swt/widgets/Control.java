@@ -680,7 +680,7 @@ void createHandle () {
 }
 
 void checkGesture () {
-	int value = OS.GetSystemMetrics (OS.SM_DIGITIZER);
+	int value =getSystemMetrics (OS.SM_DIGITIZER);
 	if ((value & (OS.NID_READY | OS.NID_MULTI_INPUT)) != 0) {
 		/*
 		 * Feature in Windows 7: All gestures are enabled by default except GID_ROTATE.
@@ -943,7 +943,7 @@ void fillImageBackground (long hDC, Control control, RECT rect, int tx, int ty) 
 	if (control != null) {
 		Image image = control.backgroundImage;
 		if (image != null) {
-			control.drawImageBackground (hDC, handle, image.handle, rect, tx, ty);
+			control.drawImageBackground (hDC, handle, Image.win32_getHandle(image, getZoom()), rect, tx, ty);
 		}
 	}
 }
@@ -1161,8 +1161,8 @@ public int getBorderWidth () {
 int getBorderWidthInPixels () {
 	long borderHandle = borderHandle ();
 	int bits1 = OS.GetWindowLong (borderHandle, OS.GWL_EXSTYLE);
-	if ((bits1 & OS.WS_EX_CLIENTEDGE) != 0) return OS.GetSystemMetrics (OS.SM_CXEDGE);
-	if ((bits1 & OS.WS_EX_STATICEDGE) != 0) return OS.GetSystemMetrics (OS.SM_CXBORDER);
+	if ((bits1 & OS.WS_EX_CLIENTEDGE) != 0) return getSystemMetrics (OS.SM_CXEDGE);
+	if ((bits1 & OS.WS_EX_STATICEDGE) != 0) return getSystemMetrics (OS.SM_CXBORDER);
 	int bits2 = OS.GetWindowLong (borderHandle, OS.GWL_STYLE);
 
 	if ((bits2 & OS.WS_BORDER) != 0) {
@@ -1172,9 +1172,9 @@ int getBorderWidthInPixels () {
 		 * saves screen space, but could break some layouts.
 		 */
 		if (isUseWsBorder ())
-			return OS.GetSystemMetrics (OS.SM_CXEDGE);
+			return getSystemMetrics (OS.SM_CXEDGE);
 
-		return OS.GetSystemMetrics (OS.SM_CXBORDER);
+		return getSystemMetrics (OS.SM_CXBORDER);
 	}
 
 	return 0;
@@ -2284,10 +2284,10 @@ void printWidget (long hwnd, long hdc, GC gc) {
 			hwndInsertAfter = OS.HWND_TOP;
 		}
 		if (fixPrintWindow) {
-			int x = OS.GetSystemMetrics (OS.SM_XVIRTUALSCREEN);
-			int y = OS.GetSystemMetrics (OS.SM_YVIRTUALSCREEN);
-			int width = OS.GetSystemMetrics (OS.SM_CXVIRTUALSCREEN);
-			int height = OS.GetSystemMetrics (OS.SM_CYVIRTUALSCREEN);
+			int x =getSystemMetrics (OS.SM_XVIRTUALSCREEN);
+			int y =getSystemMetrics (OS.SM_YVIRTUALSCREEN);
+			int width =getSystemMetrics (OS.SM_CXVIRTUALSCREEN);
+			int height =getSystemMetrics (OS.SM_CYVIRTUALSCREEN);
 			int flags = OS.SWP_NOSIZE | OS.SWP_NOZORDER | OS.SWP_NOACTIVATE | OS.SWP_DRAWFRAME;
 			if ((bits1 & OS.WS_VISIBLE) != 0) {
 				OS.DefWindowProc (hwnd, OS.WM_SETREDRAW, 0, 0);
@@ -3040,7 +3040,7 @@ void setBackground () {
 	if (control.backgroundImage != null) {
 		Shell shell = getShell ();
 		shell.releaseBrushes ();
-		setBackgroundImage (control.backgroundImage.handle);
+		setBackgroundImage (Image.win32_getHandle(control.backgroundImage, getZoom()));
 	} else {
 		setBackgroundPixel (control.background == -1 ? control.defaultBackground() : control.background);
 	}
@@ -4569,7 +4569,7 @@ void updateBackgroundColor () {
 void updateBackgroundImage () {
 	Control control = findBackgroundControl ();
 	Image image = control != null ? control.backgroundImage : backgroundImage;
-	setBackgroundImage (image != null ? image.handle : 0);
+	setBackgroundImage (image != null ? Image.win32_getHandle(image, getZoom()) : 0);
 }
 
 void updateBackgroundMode () {
@@ -5743,7 +5743,7 @@ LRESULT wmColorChild (long wParam, long lParam) {
 		RECT rect = new RECT ();
 		OS.GetClientRect (handle, rect);
 		long hwnd = control.handle;
-		long hBitmap = control.backgroundImage.handle;
+		long hBitmap = Image.win32_getHandle(control.backgroundImage, getZoom());
 		OS.MapWindowPoints (handle, hwnd, rect, 2);
 		POINT lpPoint = new POINT ();
 		OS.GetWindowOrgEx (wParam, lpPoint);
@@ -5807,7 +5807,7 @@ private static void handleDPIChange(Widget widget, int newZoom, float scalingFac
 		if (image.isDisposed()) {
 			control.setBackgroundImage(null);
 		} else {
-			control.setBackgroundImage(Image.win32_new(image, newZoom));
+			control.setBackgroundImage(image);
 		}
 	}
 }
